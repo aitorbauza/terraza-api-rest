@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\ValidationException;
 
+// FEATURE AUTH - Controlador per registrar i login d'usuaris
 class AuthController extends Controller
 {
     public function register(Request $request)
