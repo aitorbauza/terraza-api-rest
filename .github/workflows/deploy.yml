@@ -1,0 +1,58 @@
+name: Deploy to AWS EC2
+
+# Provocar la acción con comment
+on:
+  push:
+    branches:
+      - main
+
+env:
+  DOCKER_HUB_USERNAME: ${{ secrets.DOCKER_HUB_USERNAME }}
+  DOCKER_HUB_REPOSITORY: terraza-api
+  EC2_HOST: ${{ secrets.EC2_HOST }}
+  EC2_USER: ubuntu
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Log in to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKER_HUB_USERNAME }}
+          password: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
+
+      - name: Build Docker image
+        run: |
+          docker build -t ${{ secrets.DOCKER_HUB_USERNAME }}/terraza-api:latest .
+
+      - name: Push Docker image to Docker Hub
+        run: |
+          docker push ${{ secrets.DOCKER_HUB_USERNAME }}/terraza-api:latest
+
+      - name: Deploy to EC2
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ env.EC2_USER }}
+          key: ${{ secrets.EC2_SSH_KEY }}
+          script: |
+            docker pull ${{ secrets.DOCKER_HUB_USERNAME }}/terraza-api:latest
+            docker stop laravel_app || true
+            docker rm laravel_app || true
+            docker run -d \
+              --name laravel_app \
+              -p 80:80 \
+              -e APP_ENV=production \
+              -e APP_DEBUG=false \
+              -e DB_CONNECTION=mysql \
+              -e DB_HOST=${{ secrets.DB_HOST }} \
+              -e DB_PORT=3306 \
+              -e DB_DATABASE=${{ secrets.DB_DATABASE }} \
+              -e DB_USERNAME=${{ secrets.DB_USERNAME }} \
+              -e DB_PASSWORD=${{ secrets.DB_PASSWORD }} \
+              ${{ secrets.DOCKER_HUB_USERNAME }}/terraza-api:latest
