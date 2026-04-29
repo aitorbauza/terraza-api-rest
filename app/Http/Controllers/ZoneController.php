@@ -6,6 +6,7 @@ use App\Models\Zone;
 use App\Models\Reservation;
 use Illuminate\Http\Request;
 
+// FEATURE ZONES - Endpoints públics per consultar zones i disponibilitat
 class ZoneController extends Controller
 {
     // Llistar totes les zones
