@@ -1,5 +1,7 @@
 FROM php:8.3-apache
 
+# FEATURE DOCKER - Configuració per contenidors Laravel + MySQL
+
 # Instal·lar extensions
 RUN apt-get update && apt-get install -y \
     libpng-dev \
