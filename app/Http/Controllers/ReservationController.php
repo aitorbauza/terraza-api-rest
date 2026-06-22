@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Reservation;
 use Illuminate\Http\Request;
 
+// FEATURE RESERVATIONS - Endpoints privats per crear reserves i llistar-les
 class ReservationController extends Controller
 {
     // Crear una reserva
